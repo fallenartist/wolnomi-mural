@@ -1,0 +1,88 @@
+<!doctype html>
+<html class="no-js" lang="pl">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Mural – Wolno Mi</title>
+	<meta name="description" content="">
+	<style>
+		html, body {margin: 0; padding: 0}
+		body {background-color: black; color: white}
+		#bg {position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; z-index: -1;}
+		#sun {position: relative; width: 600px; height: 600px; border-radius: 50%; background-color: #fa0; transform: translate(-50%, -50%); top: 50%; left: 50%;}
+		#text {padding: 1em; font-size: 150%;}
+	</style>
+	<meta name="theme-color" content="#000000">
+</head>
+
+<body>
+	<div id="bg">
+		<div id="sun"></div>
+	</div>
+	<div id="text">
+		<h2>Mural – Wolno Mi</h2>
+		<p id="key">-</p>
+		<h3 id="time"></h3>
+	</div>
+
+
+	<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+	<script type="module">
+		// functions:
+		// sun, time based position
+		// YouTube API video playlist
+		// key press logo
+		// Shelly HTTP / MQTT
+
+		const info = d3.select("#key");
+		const time = d3.select("#time");
+		const bg = d3.select("#bg");
+		const sun = d3.select("#sun");
+		const c_sun = d3.interpolate("#ff4", "#f40");
+		const c_bg = d3.interpolate("#4f8", "#08f");
+
+		const t = new Date();
+
+		document.addEventListener("keydown", keyDownTextField, false);
+
+		function keyDownTextField(e) {
+
+			const keyCode = e.keyCode;
+
+			if (keyCode == 80) {
+				info.text("P " + video_no());
+				sun.style("background-color", c_sun(d3.randomUniform()()));
+				console.log("P pressed");
+			}
+			if (keyCode == 76) {
+				info.text("L");
+				bg.style("background-color", c_bg(d3.randomUniform()()));
+				console.log("L pressed");
+			}
+		}
+
+		const n = 141; // get number of videos in playlist
+		const array = d3.range(n);
+		let shuffled = d3.shuffle(array.slice());
+		let no = -1;
+
+		function video_no() {
+			if (no >= shuffled.length - 1) {
+				shuffled = d3.shuffle(shuffled);
+				console.log("reshuffling playlist");
+				no = -1;
+			}
+			no++;
+			return shuffled[no];
+		}
+
+		const interval = setInterval(() => {
+			time.text(t.getHours() + ":" + t.getMinutes());
+		}, 1000);
+
+	</script>
+
+</body>
+
+</html>
