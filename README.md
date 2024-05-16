@@ -1,10 +1,10 @@
 # wolnomi-mural
-Interactive wall at Wolno Mi democratic primary school in Gliwice, Poland
+Interaktywny mural w szkole demokratycznej Wolno Mi w Gliwicach
 
 Monitor:
 https://gist.github.com/simlun/1b27b14d707abbba8fc1
 
-Assigning GPIO pins to keyboard keys - edit the file `/boot/firmware/config.txt`:
+Przypisanie pinów GPIO do klawiszy klawiatury - edytuj plik `/boot/firmware/config.txt`:
 
 ```
 [all]
