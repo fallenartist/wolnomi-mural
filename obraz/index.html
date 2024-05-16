@@ -13,12 +13,12 @@
 		html, body {margin: 0; padding: 0}
 		body {background-color: black; color: white; font-family: "M PLUS Rounded 1c", sans-serif; position: relative;}
 		#bg {position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; z-index: -1;}
-		#sun {position: absolute; width: 600px; height: 600px; border-radius: 50%; background-color: #fa0; transform: translate(-50%, -50%); top: 150%; left: 50%; opacity: 0;}
+		#sun {position: absolute; width: 98vh; height: 98vh; border-radius: 50%; background-color: #f80; transform: translate(-50%, -50%); top: 150%; left: 50%; opacity: 0;}
 		#sun.anim {transition: opacity 3s ease-out, top 3s ease-out; top: 50%; opacity: 1;}
 		#info {position: absolute; transform: translate(-50%, -50%); top: 50%; left: 50%; max-width: 900px; text-align: center;}
 		#info h3 {font-size: 8em; font-weight: 700; font-style: normal; margin: 0;}
-		#info h2 {font-size: 4em; font-weight: 400; font-style: normal; margin: 0;}
-		#text {padding: 1em; color: grey;}
+		#info h2 {display: none; font-size: 4em; font-weight: 400; font-style: normal; margin: 0;}
+		#text {display: none; padding: 1em; color: grey;}
 		#player_cont {position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; z-index: 100;}
 		#player_cont.hidden {display: none;}
 	</style>
