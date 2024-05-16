@@ -6,12 +6,21 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Mural – Wolno Mi</title>
 	<meta name="description" content="">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
 	<style>
 		html, body {margin: 0; padding: 0}
-		body {background-color: black; color: white}
+		body {background-color: black; color: white; font-family: "M PLUS Rounded 1c", sans-serif; position: relative;}
 		#bg {position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; z-index: -1;}
-		#sun {position: relative; width: 600px; height: 600px; border-radius: 50%; background-color: #fa0; transform: translate(-50%, -50%); top: 50%; left: 50%;}
-		#text {padding: 1em; font-size: 150%;}
+		#sun {position: absolute; width: 600px; height: 600px; border-radius: 50%; background-color: #fa0; transform: translate(-50%, -50%); top: 150%; left: 50%; opacity: 0;}
+		#sun.anim {transition: opacity 3s ease-out, top 3s ease-out; top: 50%; opacity: 1;}
+		#info {position: absolute; transform: translate(-50%, -50%); top: 50%; left: 50%; max-width: 900px; text-align: center;}
+		#info h3 {font-size: 8em; font-weight: 700; font-style: normal; margin: 0;}
+		#info h2 {font-size: 4em; font-weight: 400; font-style: normal; margin: 0;}
+		#text {padding: 1em; color: grey;}
+		#player_cont {position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; z-index: 100;}
+		#player_cont.hidden {display: none;}
 	</style>
 	<meta name="theme-color" content="#000000">
 </head>
@@ -19,13 +28,21 @@
 <body>
 	<div id="bg">
 		<div id="sun"></div>
+		<div id="info">
+			<h3 id="time">:</h3>
+			<h2 id="desc">trwają zajęcia</h2>
+		</div>
 	</div>
-	<div id="text">
-		<h2>Mural – Wolno Mi</h2>
-		<p id="key">-</p>
-		<h3 id="time"></h3>
+	<div id="fg"></div>
+
+	<div id="player_cont" class="hidden">
+		<div id="player"></div>
 	</div>
 
+	<div id="text">
+		<p>Naciśnij P</p>
+		<p id="key"></p>
+	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 	<script type="module">
@@ -35,34 +52,137 @@
 		// key press logo
 		// Shelly HTTP / MQTT
 
+		export function waitFor(predicate, timeout) {
+		  return new Promise((resolve, reject) => {
+			const check = () => {
+			  console.log('checking', predicate());
+			  if (!predicate()) return;
+			  clearInterval(interval);
+			  resolve();
+			};
+			const interval = setInterval(check, 100);
+			check();
+
+			if (!timeout) return;
+			setTimeout(() => {
+			  clearInterval(interval);
+			  reject();
+			}, timeout);
+		  });
+		}
+
+		//
+
+		const tag = document.createElement('script');
+		tag.src = "https://www.youtube.com/iframe_api";
+		const firstScriptTag = document.getElementsByTagName('script')[0];
+		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+		const playlist_id = 'PLuiikgCc3oFIsNvEBV2AJ63O4W9F6wG3J'; // Leśny Budzik
+
+		let n = 0;
+		let state = 0;
+		let played = false;
+		let title = '';
+		const player_cont = d3.select("#player_cont");
 		const info = d3.select("#key");
 		const time = d3.select("#time");
 		const bg = d3.select("#bg");
 		const sun = d3.select("#sun");
-		const c_sun = d3.interpolate("#ff4", "#f40");
+		const c_sun = d3.interpolate("#f80", "#f20");
 		const c_bg = d3.interpolate("#4f8", "#08f");
 
-		const t = new Date();
+		var player;
 
-		document.addEventListener("keydown", keyDownTextField, false);
+		const interval = setInterval(() => {
+			const t = new Date();
+			let hh = String(t.getHours()).padStart(2, "0");
+			let mm = String(t.getMinutes()).padStart(2, "0");
+			time.text(hh + ":" + mm);
+		}, 1000);
 
-		function keyDownTextField(e) {
+		try {
+			await waitFor(() => window.hasOwnProperty('YT'), 5000);
+			if (typeof YT !== 'undefined' && YT.loaded) {
+				console.log("YT API is ready");
 
-			const keyCode = e.keyCode;
-
-			if (keyCode == 80) {
-				info.text("P " + video_no());
-				sun.style("background-color", c_sun(d3.randomUniform()()));
-				console.log("P pressed");
+				player = new YT.Player('player', {
+					height: '1080',
+					width: '1920',
+					playerVars: {
+						'origin': 'https://dev.warsztatmiejski.org',
+						'enablejsapi': 1,
+						'start': 6,
+						'rel': 0,
+						'fs': 0,
+						'autoplay': 0,
+						'controls': 0,
+						'listType': 'playlist',
+						'list': playlist_id
+					},
+					events: {
+						'onReady': onPlayerReady,
+						'onStateChange': onPlayerStateChange
+					}
+				});
 			}
-			if (keyCode == 76) {
-				info.text("L");
-				bg.style("background-color", c_bg(d3.randomUniform()()));
-				console.log("L pressed");
+		} catch (err) {
+			console.error('YT API timed out')
+			// disable YT
+			// run other functions
+		}
+
+		sun.classed("anim", true);
+
+		//document.addEventListener("keydown", keyDownTextField, false);
+
+		function onPlayerReady(event) {
+			//player_cont.classed("hidden", true);
+			n = player.getPlaylist().length;
+			console.log(n);
+			player.setShuffle(true);
+
+			document.addEventListener("keydown", function(e) {
+
+				const keyCode = e.keyCode;
+
+				if (keyCode === 80) {
+					info.text("P");
+					sun.style("background-color", c_sun(d3.randomUniform()()));
+					console.log("P pressed");
+					player_cont.classed("hidden", false);
+					//player.playVideoAt(video_no());
+					player.nextVideo();
+					player.seekTo(6, true);
+				}
+				if (keyCode === 76) {
+					info.text("L");
+					//bg.style("background-color", c_bg(d3.randomUniform()()));
+					console.log("L pressed");
+				}
+			});
+		}
+		function onPlayerStateChange(event) {
+			let state = player.getPlayerState();
+			console.log("video state: " + state);
+			if (state === -1 && !played) { // first play
+				//console.log(event.data);
+			}
+			if (state === -1 && played) { // next video
+				console.log("Video stopped");
+				player.stopVideo();
+				played = false;
+				player_cont.classed("hidden", true);
+			}
+			if (state === 1) { // playing
+				console.log("Playing video");
+				title = d3.select("#player").attr("title").slice(15);
+				console.log(title);
+				played = true;
 			}
 		}
 
-		const n = 141; // get number of videos in playlist
+		n = 141; // get number of videos in playlist
 		const array = d3.range(n);
 		let shuffled = d3.shuffle(array.slice());
 		let no = -1;
@@ -76,10 +196,6 @@
 			no++;
 			return shuffled[no];
 		}
-
-		const interval = setInterval(() => {
-			time.text(t.getHours() + ":" + t.getMinutes());
-		}, 1000);
 
 	</script>
 
