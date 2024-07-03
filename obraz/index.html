@@ -29,7 +29,7 @@
 	<div id="bg">
 		<div id="sun"></div>
 		<div id="info">
-			<h3 id="time">:</h3>
+			<h3 id="time"></h3>
 			<h2 id="desc">trwają zajęcia</h2>
 		</div>
 	</div>
@@ -40,7 +40,6 @@
 	</div>
 
 	<div id="text">
-		<p>Naciśnij P</p>
 		<p id="key"></p>
 	</div>
 
@@ -147,7 +146,7 @@
 				const keyCode = e.keyCode;
 
 				if (keyCode === 80) {
-					info.text("P");
+					//info.text("P");
 					sun.style("background-color", c_sun(d3.randomUniform()()));
 					console.log("P pressed");
 					player_cont.classed("hidden", false);
@@ -156,7 +155,7 @@
 					player.seekTo(6, true);
 				}
 				if (keyCode === 76) {
-					info.text("L");
+					//info.text("L");
 					//bg.style("background-color", c_bg(d3.randomUniform()()));
 
 				}
