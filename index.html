@@ -57,6 +57,9 @@
 	// ——————————————————————————————————————————————————————
 	// 1. Ensure focus & global key listener
 	// ——————————————————————————————————————————————————————
+	const DEBOUNCE_DELAY = 500;   // milliseconds
+	let lastPTime = 0;
+
 	window.addEventListener('load', () => {
 	  if (!document.hasFocus()) window.focus();
 	});
@@ -65,6 +68,11 @@
 	  console.log('keydown event:', e.code, e.key);
 	  const log = d3.select('#log');
 	  if (e.code === 'KeyP') {
+		const now = Date.now();
+		// if too soon since last handled press, ignore
+		if (now - lastPTime < DEBOUNCE_DELAY) return;
+		lastPTime = now;
+
 		log.text('P key detected');
 		const pc = d3.select('#player_cont');
 		pc.classed('hidden', false);
