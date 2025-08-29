@@ -1,8 +1,18 @@
 # Raspberry Pi
 
+Raspberry Pi OS Lite 64-bit (headless)
+
+## Add network SSIDs
+
+`sudo nmtui`
+
 ## Kiosk
 
+https://blog.r0b.io/post/minimal-rpi-kiosk/
+https://gist.github.com/huksley/d5c2cda34094e63d6133fb0104e37eb9
 https://www.raspberrypi.com/tutorials/how-to-use-a-raspberry-pi-in-kiosk-mode/
+
+`TBC`
 
 ## Monitor
 

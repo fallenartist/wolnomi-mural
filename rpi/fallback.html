@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Offline Fallback</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+	html, body {
+	  margin: 0; padding: 0;
+	  background: black; color: white;
+	  font-family: sans-serif;
+	  display: flex; align-items: center; justify-content: center;
+	  height: 100vh; width: 100vw;
+	  text-align: center;
+	}
+	#container {
+	  max-width: 1000px; margin: 0 auto;
+	}
+	h2 {
+		font-size: 8em;
+		font-weight: bold;
+		font-style: normal;
+		margin: 0;
+	}
+	h3 {
+		font-size: 3em;
+		font-weight: bold;
+		font-style: normal;
+	}
+	#status {
+	  color: #ccc; margin-top: 2em;
+	}
+  </style>
+</head>
+<body>
+  <div id="container">
+	<h2 id="time">--:--</h2>
+	<h3 id="date">...</h3>
+	<p id="status"></p>
+  </div>
+
+  <script>
+	// KIOSK URL
+	const REMOTE_URL = "https://dev.warsztatmiejski.org/mural";
+
+	// czas i data
+
+	const timeEl = document.getElementById('time');
+	const dateEl = document.getElementById('date');
+	const statusEl = document.getElementById('status');
+
+	function updateTime() {
+	  const now = new Date();
+	  timeEl.textContent = now.toLocaleTimeString('pl-PL', {
+		hour:   '2-digit',
+		minute: '2-digit'
+	  });
+	  dateEl.textContent = now.toLocaleDateString('pl-PL', {
+		weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+	  });
+	}
+	setInterval(updateTime, 1000);
+	updateTime();
+
+
+	// sprawdzaj połączenie z internetem
+
+	async function checkInternet() {
+	  try {
+		await fetch(REMOTE_URL, {
+		  method: 'HEAD',
+		  mode:   'no-cors',
+		  cache:  'no-store'
+		});
+		window.location.replace(REMOTE_URL);
+	  }
+	  catch (_) {
+		statusEl.textContent = 'Tryb offline…';
+	  }
+	}
+
+	checkInternet();
+
+	setInterval(checkInternet, 30000);
+
+  </script>
+</body>
+</html>
